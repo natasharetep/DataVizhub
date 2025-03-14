@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📊 Sales Dashboard</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            padding: 20px;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        .container {
+            
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .metrics, .filters, .charts {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #e6f7ff;
+        }
+        .charts img {
+            
+            border-radius: 8px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Sales Dashboard</h1>
+
+        <!-- Key Metrics Section -->
+        <div class="metrics">
+            <h3>Key Metrics</h3>
+            <p><strong>Total Sales:</strong> ${{ total_sales }}</p>
+            <p><strong>Average Sales:</strong> ${{ average_sales }}</p>
+            <p><strong>Top Region:</strong> {{ top_region }}</p>
+            <p><strong>Total Customers:</strong> {{ total_customers }}</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filters">
+            <h3>🔍 Filters</h3>
+            <form id="filter-form">
+                
+                Year: 
+                <select name="year">
+                    <option value="2023">2023</option>
+                    <option value="2024" selected>2024</option>
+                    <option value="2025">2025</option>
+                </select>
+        
+                Sales Range:
+                <select name="sales_range">
+                    <option value="all">All Sales</option>
+                    <option value="lt_2000">Less than 2000</option>
+                    <option value="2000_4000">Between 2000 - 4000</option>
+                    <option value="gt_4000">More than 4000</option>
+                </select>
+        
+                Category:
+                <input type="text" name="category" placeholder="Enter Category">
+        
+                Region:
+                <input type="text" name="region" placeholder="Enter Region">
+        
+                Months:
+                <div class="checkbox-container">
+                    <label><input type="checkbox" name="months" value="January"> January</label>
+                    <label><input type="checkbox" name="months" value="February"> February</label>
+                    <label><input type="checkbox" name="months" value="March"> March</label>
+                    <label><input type="checkbox" name="months" value="April"> April</label>
+                    <label><input type="checkbox" name="months" value="May"> May</label>
+                    <label><input type="checkbox" name="months" value="June"> June</label>
+                    <label><input type="checkbox" name="months" value="July"> July</label>
+                    <label><input type="checkbox" name="months" value="August"> August</label>
+                    <label><input type="checkbox" name="months" value="September"> September</label>
+                    <label><input type="checkbox" name="months" value="October"> October</label>
+                    <label><input type="checkbox" name="months" value="November"> November</label>
+                    <label><input type="checkbox" name="months" value="December"> December</label>
+                </div>
+        
+                <button type="submit">Apply Filters</button>
+            </form>
+        </div>
+        
+
+        <!-- Filtered Sales Chart -->
+        <div class="charts">
+            <h3>📈 Filtered Sales Chart</h3>
+            <img id="filtered-sales-chart" src="/static/filtered_sales_chart.png" alt="Filtered Sales Chart">
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts">
+            <h3>📈 Sales Chart</h3>
+            <img id="sales-chart" src="{{ chart_url }}" alt="Sales Chart">
+
+            <h3>📊 Product Category Distribution</h3>
+            <img id="category-chart" src="{{ category_chart_url }}" alt="Category Chart">
+        </div>
+    </div>
+
+    <script>
+        $('#filter-form').submit(function(e) {
+    e.preventDefault();
+
+    // Collect selected months
+    let selectedMonths = [];
+    $('input[name="months"]:checked').each(function() {
+        selectedMonths.push($(this).val());
+    });
+
+    $.ajax({
+        url: "{% url 'apply_filters' %}",
+        method: "GET",
+        data: {
+            year: $('select[name="year"]').val(),
+            months: selectedMonths.join(","),
+            sales_range: $('select[name="sales_range"]').val(),
+            category: $('input[name="category"]').val(),
+            region: $('input[name="region"]').val()
+        },
+        success: function(response) {
+            console.log("Response from server:", response);
+
+            if (response.chart_url) {
+                $('#filtered-sales-chart').attr('src', response.chart_url + '?v=' + new Date().getTime());
+            }
+
+            $('#total-records').text(response.total_records);
+            $('#unique-months').text(response.total_unique_months);
+            $('#highest-sales').text(response.highest_sales);
+            $('#lowest-sales').text(response.lowest_sales);
+            $('#median-sales').text(response.median_sales);
+        },
+        error: function() {
+            alert('Error fetching data. Please try again.');
+        }
+    });
+});
+
+
+    </script>
+</body>
+</html>

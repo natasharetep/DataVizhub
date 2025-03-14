@@ -121,10 +121,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 import os
-
-# Define media settings
-MEDIA_URL = '/media/'  # URL that handles the media served from MEDIA_ROOT
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')  # Absolute filesystem path to store the files
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] # Absolute filesystem path to store the files
 
 
 # Default primary key field type
