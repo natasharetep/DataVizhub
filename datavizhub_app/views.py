@@ -142,6 +142,8 @@ def apply_filters(request):
         elif sales_range == 'gt_4000':
             data = data[data['Sales'] > 4000]
 
+        
+
         # Filter by Category
         if category:
             data = data[data['Product Category'].str.contains(category, case=False, na=False)]
@@ -149,6 +151,8 @@ def apply_filters(request):
         # Filter by Region
         if region:
             data = data[data['Region'].str.contains(region, case=False, na=False)]
+
+        mean_sales = data['Sales'].mean()
 
         # Correct Month Order
         month_order = [
